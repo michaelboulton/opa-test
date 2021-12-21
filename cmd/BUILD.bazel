@@ -6,7 +6,10 @@ go_library(
     importpath = "github.com/michaelboulton/opa-test/cmd",
     visibility = ["//visibility:private"],
     deps = [
-        "//pkg",
+        "//pkg/logging",
+        "//pkg/opa",
+        "@com_github_open_policy_agent_opa//sdk",
+        "@com_github_pkg_errors//:errors",
         "@com_github_spf13_cobra//:cobra",
     ],
 )

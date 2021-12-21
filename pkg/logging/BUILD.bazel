@@ -1,17 +1,18 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "pkg",
+    name = "logging",
     srcs = [
-        "load.go",
+        "global.go",
         "logger.go",
+        "opa_sdk.go",
+        "writer.go",
     ],
-    importpath = "github.com/michaelboulton/opa-test/pkg",
+    importpath = "github.com/michaelboulton/opa-test/pkg/logging",
     visibility = ["//visibility:public"],
     deps = [
         "@com_github_open_policy_agent_opa//logging",
-        "@com_github_open_policy_agent_opa//sdk",
-        "@com_github_pkg_errors//:errors",
         "@org_uber_go_zap//:zap",
+        "@org_uber_go_zap//zapcore",
     ],
 )

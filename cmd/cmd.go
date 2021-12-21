@@ -3,16 +3,14 @@ package main
 import (
 	"context"
 
-	"github.com/michaelboulton/opa-test/pkg"
+	"github.com/michaelboulton/opa-test/pkg/logging"
+	"github.com/michaelboulton/opa-test/pkg/opa"
+	"github.com/open-policy-agent/opa/sdk"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
-func main() {
-	err := cmd.Execute()
-	if err != nil {
-		panic(err)
-	}
-}
+var logger = logging.Logger
 
 var cmd = &cobra.Command{
 	Use:     "opa-test",
@@ -28,12 +26,30 @@ func doRun(command *cobra.Command, args []string) error {
 
 	filename := args[0]
 
-	opa, err := pkg.NewOpa(ctx, filename)
+	instance, err := opa.NewOpa(ctx, filename)
 	if err != nil {
 		return err
 	}
+	defer instance.Stop(ctx)
 
-	defer opa.Stop(ctx)
+	decision, err := instance.Decision(ctx, sdk.DecisionOptions{
+		Path: "example/allow",
+		Input: map[string]interface{}{
+			"a": "b",
+		},
+	})
+	if err != nil {
+		return errors.Wrap(err, "making decision")
+	}
+
+	logger.Infof("Decision: %#v", decision)
 
 	return nil
+}
+
+func main() {
+	err := cmd.Execute()
+	if err != nil {
+		logger.Panic(err)
+	}
 }

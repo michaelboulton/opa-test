@@ -6,5 +6,5 @@ bazel run //:gazelle -- update-repos -from_file=go.mod -to_macro=deps.bzl%go_dep
 bazel run //:gazelle -- fix &
 
 wait
-bazel run //cmd
+bazel run //cmd -- $@
 

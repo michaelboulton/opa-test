@@ -1,2 +1,5 @@
 build --incompatible_strict_action_env
 test --incompatible_strict_action_env
+
+test --flaky_test_attempts=1
+test --test_output=errors
