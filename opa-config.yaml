@@ -1,0 +1,48 @@
+---
+#services:
+#  acmecorp:
+#    url: https://example.com/control-plane-api/v1
+#    response_header_timeout_seconds: 5
+#    credentials:
+#      bearer:
+#        token: "bGFza2RqZmxha3NkamZsa2Fqc2Rsa2ZqYWtsc2RqZmtramRmYWxkc2tm"
+#
+#labels:
+#  app: myapp
+#  region: west
+#  environment: production
+#
+#bundles:
+#  authz:
+#    service: acmecorp
+#    resource: bundles/http/example/authz.tar.gz
+#    persist: true
+#    polling:
+#      min_delay_seconds: 60
+#      max_delay_seconds: 120
+#    signing:
+#      keyid: global_key
+#      scope: write
+#
+#decision_logs:
+#  service: acmecorp
+#  reporting:
+#    min_delay_seconds: 300
+#    max_delay_seconds: 600
+#
+#status:
+#  service: acmecorp
+#
+#default_decision: /http/example/authz/allow
+#
+#persistence_directory: /var/opa
+#
+#keys:
+#  global_key:
+#    algorithm: RS256
+#    key: <PEM_encoded_public_key>
+#    scope: read
+#
+#caching:
+#  inter_query_builtin_cache:
+#    max_size_bytes: 10000000
