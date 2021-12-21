@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "pkg",
+    srcs = [
+        "load.go",
+        "logger.go",
+    ],
+    importpath = "github.com/michaelboulton/opa-test/pkg",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_open_policy_agent_opa//sdk",
+        "@com_github_pkg_errors//:errors",
+        "@org_uber_go_zap//:zap",
+    ],
+)
