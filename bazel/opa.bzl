@@ -49,3 +49,27 @@ opa_bundle = rule(
         "_opa": attr.label(default = "@opa", allow_single_file = True, executable = True, cfg = "exec"),
     },
 )
+
+def _opa_test_impl(ctx):
+    ctx.actions.write(
+        output = ctx.outputs.executable,
+        content = """{opa} test . {files} -b {bundle} -v""".format(
+            opa = ctx.executable._opa.path,
+            files = " ".join([i.path for i in ctx.files.srcs]),
+            bundle = " ".join([i.path for i in ctx.files.bundle]),
+        ),
+        #        content = ["test", "."] + [i.short_path for i in ctx.files.test_files] + ["-b", ctx.files.bundle, "-v"],
+    )
+
+    runfiles = ctx.runfiles(files = ctx.files.srcs + ctx.files.bundle + ctx.files._opa)
+    return [DefaultInfo(runfiles = runfiles)]
+
+opa_test = rule(
+    implementation = _opa_test_impl,
+    attrs = {
+        "srcs": attr.label_list(allow_files = True),
+        "bundle": attr.label(allow_single_file = True),
+        "_opa": attr.label(default = "@opa", allow_single_file = True, executable = True, cfg = "exec"),
+    },
+    test = True,
+)
