@@ -6,38 +6,36 @@ import (
 )
 
 func (z *ZapOpaLogger) Debug(format string, a ...interface{}) {
-	z.initSkipped()
-	z.withSkip.Debugf(format, a...)
+	z.SugaredLogger.Debugf(format, a...)
 }
 
 func (z *ZapOpaLogger) Info(format string, a ...interface{}) {
-	z.initSkipped()
-	z.withSkip.Infof(format, a...)
+	z.SugaredLogger.Infof(format, a...)
 }
 
 func (z *ZapOpaLogger) Error(format string, a ...interface{}) {
-	z.initSkipped()
-	z.withSkip.Errorf(format, a...)
+	z.SugaredLogger.Errorf(format, a...)
 }
 
 func (z *ZapOpaLogger) Warn(format string, a ...interface{}) {
-	z.initSkipped()
-	z.withSkip.Warnf(format, a...)
+	z.SugaredLogger.Warnf(format, a...)
 }
 
 func (z *ZapOpaLogger) WithFields(m map[string]interface{}) logging.Logger {
-	z.initSkipped()
-
 	var newContext []interface{}
 	for k, v := range m {
 		newContext = append(newContext, k, v)
 	}
 
+	build, err := z.config.Build(zap.AddCallerSkip(1))
+	if err != nil {
+		z.Panic(err)
+	}
+
 	newZ := &ZapOpaLogger{
 		config:        z.config,
-		SugaredLogger: z.With(newContext...),
+		SugaredLogger: build.Sugar().With(newContext...),
 	}
-	newZ.initSkipped()
 	return newZ
 }
 
