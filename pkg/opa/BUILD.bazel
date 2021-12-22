@@ -15,10 +15,12 @@ go_library(
 go_test(
     name = "opa_test",
     srcs = ["load_test.go"],
+    data = ["//policies:allow_post"],
     embed = [":opa"],
     deps = [
         "@com_github_gin_gonic_gin//:gin",
         "@com_github_pkg_errors//:errors",
+        "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
         "@in_gopkg_yaml_v3//:yaml_v3",
         "@io_bazel_rules_go//go/tools/bazel:go_default_library",

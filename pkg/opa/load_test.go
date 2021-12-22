@@ -16,6 +16,7 @@ import (
 	"github.com/bazelbuild/rules_go/go/tools/bazel"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v3"
@@ -109,6 +110,16 @@ func startServingBundles(t *testing.T, addr string, policy string, bundle string
 	gin.DefaultWriter = ioutil.Discard
 	gin.DefaultErrorWriter = logger.WriteAtLevel(zapcore.ErrorLevel)
 
+	runfile, err := bazel.Runfile("policies/bundle.tar.gz")
+	if !assert.NoError(t, err) {
+		av, err := bazel.ListRunfiles()
+		require.NoError(t, err)
+		for _, entry := range av {
+			t.Logf("%s: %s", entry.Workspace, entry.ShortPath)
+		}
+		require.FailNow(t, "ohnoes")
+	}
+
 	router := gin.Default()
 	router.
 		Use(gin.LoggerWithConfig(gin.LoggerConfig{
@@ -139,7 +150,8 @@ func startServingBundles(t *testing.T, addr string, policy string, bundle string
 				return
 			}
 
-			context.AbortWithStatus(502)
+			context.File(runfile)
+			context.Status(200)
 		})
 
 	server := &http.Server{
