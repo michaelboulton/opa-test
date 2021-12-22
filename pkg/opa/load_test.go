@@ -9,12 +9,14 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/bazelbuild/rules_go/go/tools/bazel"
 	"github.com/gin-gonic/gin"
+	"github.com/open-policy-agent/opa/sdk"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -25,9 +27,28 @@ import (
 func TestNewOpa(t *testing.T) {
 	tests := []struct {
 		name string
+		req  http.Request
+		deny bool
 	}{
 		{
-			name: "create with bundle",
+			name: "bad request",
+			req: http.Request{
+				Method: "GET",
+				URL: &url.URL{
+					Path: "/fk",
+				},
+			},
+			deny: true,
+		},
+		{
+			name: "good request",
+			req: http.Request{
+				Method: "POST",
+				URL: &url.URL{
+					Path: "/users",
+				},
+			},
+			deny: false,
 		},
 	}
 
@@ -54,6 +75,27 @@ func TestNewOpa(t *testing.T) {
 			opa, err := NewOpa(ctx, configFile.Name())
 			require.NoError(t, err)
 			require.NotNil(t, opa)
+
+			rawDecision, err := opa.Decision(ctx, sdk.DecisionOptions{
+				Now:  time.Time{},
+				Path: "authz",
+				Input: map[string]interface{}{
+					"path":   "kosdf",
+					"method": "PP",
+				},
+			})
+			require.NoError(t, err)
+			t.Logf("%#v", rawDecision.Result)
+
+			asJson, err := json.Marshal(rawDecision.Result)
+			require.NoError(t, err)
+			t.Logf("%s", asJson)
+
+			asMap := map[string]interface{}{}
+			err = json.Unmarshal(asJson, &asMap)
+			require.NoError(t, err)
+
+			assert.Equal(t, tt.deny, asMap["deny"])
 		})
 	}
 }

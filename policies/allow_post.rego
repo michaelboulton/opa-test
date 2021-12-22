@@ -1,6 +1,8 @@
 package authz
 
 allow {
-    input.path == ["users"]
+    input.url.path == ["/users"]
     input.method == "POST"
 }
+
+default deny

@@ -37,7 +37,7 @@ def _opa_bundle_impl(ctx):
         inputs = ctx.files.srcs,
         outputs = [bundleout],
         executable = ctx.executable._opa,
-        arguments = ["build", ".", "-o", bundleout.path],
+        arguments = ["build", "."] + [i.short_path for i in ctx.files.srcs] + ["-o", bundleout.path],
     )
 
     return DefaultInfo(files = depset([bundleout]))
