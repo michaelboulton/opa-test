@@ -62,3 +62,9 @@ load("//:deps.bzl", "go_dependencies")
 go_dependencies()
 
 gazelle_dependencies()
+
+load("//bazel:opa.bzl", "download_opa")
+
+download_opa(
+    name = "opa",
+)

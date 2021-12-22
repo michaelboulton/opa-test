@@ -42,7 +42,7 @@ func TestNewOpa(t *testing.T) {
 
 			i := rand.Int()%40000 + 10000
 			addr := fmt.Sprintf("127.0.0.1:%d", i)
-			policy := "/policies"
+			policy := "policies"
 			bundle := "authz"
 
 			configFile := createConfigFile(t, addr, policy, bundle, token)
