@@ -42,11 +42,12 @@ func TestNewOpa(t *testing.T) {
 
 			i := rand.Int()%40000 + 10000
 			addr := fmt.Sprintf("127.0.0.1:%d", i)
-			policyPath := "/policies"
+			policy := "/policies"
+			bundle := "authz"
 
-			configFile := createConfigFile(t, addr, policyPath, token)
+			configFile := createConfigFile(t, addr, policy, bundle, token)
 
-			server := startServingBundles(t, addr, policyPath, token)
+			server := startServingBundles(t, addr, policy, bundle, token)
 			defer server.Close()
 
 			opa, err := NewOpa(ctx, configFile.Name())
@@ -56,7 +57,7 @@ func TestNewOpa(t *testing.T) {
 	}
 }
 
-func createConfigFile(t *testing.T, addr string, policyPath string, token string) *os.File {
+func createConfigFile(t *testing.T, addr string, policy string, bundle string, token string) *os.File {
 	exampleConfig := OpaConfig{
 		Services: []Service{
 			{
@@ -70,10 +71,10 @@ func createConfigFile(t *testing.T, addr string, policyPath string, token string
 			},
 		},
 		Bundles: map[string]Bundle{
-			"authz": {
+			bundle: {
 				BundleSource: &BundleSource{
 					Service:  "mytestservice",
-					Resource: policyPath,
+					Resource: policy,
 					Persist:  false,
 					Polling:  nil,
 					Signing:  nil,
@@ -102,15 +103,20 @@ func createConfigFile(t *testing.T, addr string, policyPath string, token string
 	return file
 }
 
-func startServingBundles(t *testing.T, addr string, policyPath string, token string) http.Server {
-	gin.DefaultWriter = logger.WriteAtLevel(zapcore.InfoLevel)
-	gin.DefaultErrorWriter = logger.WriteAtLevel(zapcore.ErrorLevel)
-
+func startServingBundles(t *testing.T, addr string, policy string, bundle string, token string) *http.Server {
+	infoLogger := logger.WriteAtLevel(zapcore.InfoLevel)
+	// gin.DefaultWriter = infoLogger
 	gin.DefaultWriter = ioutil.Discard
+	gin.DefaultErrorWriter = logger.WriteAtLevel(zapcore.ErrorLevel)
 
 	router := gin.Default()
 	router.
-		Use(gin.LoggerWithWriter(ioutil.Discard)).
+		Use(gin.LoggerWithConfig(gin.LoggerConfig{
+			Formatter: func(params gin.LogFormatterParams) string {
+				return params.ErrorMessage
+			},
+			Output: infoLogger,
+		})).
 		Use(func(context *gin.Context) {
 			t0 := time.Now()
 			context.Next()
@@ -119,11 +125,11 @@ func startServingBundles(t *testing.T, addr string, policyPath string, token str
 			logger.
 				WithFields(map[string]interface{}{
 					"duration": duration.Seconds(),
-					"f":        "lflf",
+					"method":   context.Request.Method,
 				}).
 				Info("Path: %s", context.Request.URL.Path)
 		}).
-		GET(policyPath, func(context *gin.Context) {
+		GET(fmt.Sprintf("/bundles/%s", bundle), func(context *gin.Context) {
 			if context.GetHeader("authorization") == "" {
 				_ = context.AbortWithError(401, errors.New("no auth header"))
 				return
@@ -136,7 +142,7 @@ func startServingBundles(t *testing.T, addr string, policyPath string, token str
 			context.AbortWithStatus(502)
 		})
 
-	server := http.Server{
+	server := &http.Server{
 		Handler: router,
 		Addr:    addr,
 	}
