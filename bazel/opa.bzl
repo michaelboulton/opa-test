@@ -31,14 +31,16 @@ download_opa = repository_rule(
 )
 
 def _opa_bundle_impl(ctx):
-    bundleout = ctx.actions.declare_file(ctx.attr.name + ".bundle.tar.gz")
+    bundleout = ctx.actions.declare_file("bundle.tar.gz")
 
     ctx.actions.run(
         inputs = ctx.files.srcs,
         outputs = [bundleout],
         executable = ctx.executable._opa,
-        arguments = ["build", "."],
+        arguments = ["build", ".", "-o", bundleout.path],
     )
+
+    return DefaultInfo(files = depset([bundleout]))
 
 opa_bundle = rule(
     implementation = _opa_bundle_impl,
