@@ -30,10 +30,20 @@ download_opa = repository_rule(
     },
 )
 
-#opa_bundle = rule(
-#    implementation = _opa_bundle_impl,
-#    attrs = {
-#        "srcs": attr.label_list(required = True),
-#        "_opa": attr.label(default = "@opa"),
-#    },
-#)
+def _opa_bundle_impl(ctx):
+    bundleout = ctx.actions.declare_file(ctx.attr.name + ".bundle.tar.gz")
+
+    ctx.actions.run(
+        inputs = ctx.files.srcs,
+        outputs = [bundleout],
+        executable = ctx.executable._opa,
+        arguments = ["build", "."],
+    )
+
+opa_bundle = rule(
+    implementation = _opa_bundle_impl,
+    attrs = {
+        "srcs": attr.label_list(allow_files = True),
+        "_opa": attr.label(default = "@opa", allow_single_file = True, executable = True, cfg = "exec"),
+    },
+)
