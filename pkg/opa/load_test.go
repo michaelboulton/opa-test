@@ -26,9 +26,9 @@ import (
 
 func TestNewOpa(t *testing.T) {
 	tests := []struct {
-		name string
-		req  http.Request
-		deny bool
+		name  string
+		req   http.Request
+		allow bool
 	}{
 		{
 			name: "bad request",
@@ -38,7 +38,7 @@ func TestNewOpa(t *testing.T) {
 					Path: "/fk",
 				},
 			},
-			deny: true,
+			allow: false,
 		},
 		{
 			name: "good request",
@@ -48,7 +48,7 @@ func TestNewOpa(t *testing.T) {
 					Path: "/users",
 				},
 			},
-			deny: false,
+			allow: true,
 		},
 	}
 
@@ -80,8 +80,8 @@ func TestNewOpa(t *testing.T) {
 				Now:  time.Time{},
 				Path: "authz",
 				Input: map[string]interface{}{
-					"path":   "kosdf",
-					"method": "PP",
+					"path":   tt.req.URL.Path,
+					"method": tt.req.Method,
 				},
 			})
 			require.NoError(t, err)
@@ -95,7 +95,7 @@ func TestNewOpa(t *testing.T) {
 			err = json.Unmarshal(asJson, &asMap)
 			require.NoError(t, err)
 
-			assert.Equal(t, tt.deny, asMap["deny"])
+			assert.Equal(t, tt.allow, asMap["allow"])
 		})
 	}
 }
@@ -123,6 +123,9 @@ func createConfigFile(t *testing.T, addr string, policy string, bundle string, t
 					Signing:  nil,
 				},
 			},
+		},
+		DecisionLogs: DecisionLogs{
+			Console: true,
 		},
 	}
 	asJson, err := json.Marshal(exampleConfig)

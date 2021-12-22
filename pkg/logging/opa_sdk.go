@@ -26,6 +26,7 @@ func (z *ZapOpaLogger) WithFields(m map[string]interface{}) logging.Logger {
 	for k, v := range m {
 		newContext = append(newContext, k, v)
 	}
+	newContext = append(z.context, newContext...)
 
 	build, err := z.config.Build(zap.AddCallerSkip(1))
 	if err != nil {
@@ -35,6 +36,7 @@ func (z *ZapOpaLogger) WithFields(m map[string]interface{}) logging.Logger {
 	newZ := &ZapOpaLogger{
 		config:        z.config,
 		SugaredLogger: build.Sugar().With(newContext...),
+		context:       newContext,
 	}
 	return newZ
 }

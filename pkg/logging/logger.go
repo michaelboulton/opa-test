@@ -7,6 +7,7 @@ import (
 type ZapOpaLogger struct {
 	config zap.Config
 	*zap.SugaredLogger
+	context []interface{}
 }
 
 func (z *ZapOpaLogger) WithSkip(skip int) *ZapOpaLogger {

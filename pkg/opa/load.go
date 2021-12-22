@@ -76,8 +76,13 @@ type Signing struct {
 	Scope string `json:"scope,omitempty"`
 }
 
+type DecisionLogs struct {
+	Console bool `json:"console,omitempty"`
+}
+
 // OpaConfig defines the top level OPA config to go to json
 type OpaConfig struct {
-	Services []Service         `json:"services,omitempty"`
-	Bundles  map[string]Bundle `json:"bundles,omitempty"`
+	Services     []Service         `json:"services,omitempty"`
+	Bundles      map[string]Bundle `json:"bundles,omitempty"`
+	DecisionLogs DecisionLogs      `json:"decision_logs,omitempty"`
 }
