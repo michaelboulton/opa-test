@@ -67,8 +67,8 @@ def _opa_test_impl(ctx):
 opa_test = rule(
     implementation = _opa_test_impl,
     attrs = {
-        "srcs": attr.label_list(allow_files = True),
-        "bundle": attr.label(allow_single_file = True),
+        "srcs": attr.label_list(allow_files = True, mandatory = True),
+        "bundle": attr.label(allow_single_file = True, mandatory = True),
         "_opa": attr.label(default = "@opa", allow_single_file = True, executable = True, cfg = "exec"),
     },
     test = True,
