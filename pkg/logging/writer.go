@@ -5,6 +5,7 @@ import "go.uber.org/zap/zapcore"
 // logFunc logs some message
 type logFunc func(fmt string, a ...interface{})
 
+// LoggerAtLevel wraps a logger to implement the io.Writer interface to write log messages at a given level
 type LoggerAtLevel struct {
 	logFunc logFunc
 }

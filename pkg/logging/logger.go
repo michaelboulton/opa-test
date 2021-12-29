@@ -4,6 +4,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// ZapOpaLogger is a wrapper for a Zap logger that implements the OPA logger interface
 type ZapOpaLogger struct {
 	config zap.Config
 	*zap.SugaredLogger
