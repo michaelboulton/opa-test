@@ -65,11 +65,11 @@ func TestNewOpa(t *testing.T) {
 			i := rand.Int()%40000 + 10000
 			addr := fmt.Sprintf("127.0.0.1:%d", i)
 			policy := "policies"
-			bundle := "authz"
+			bundleName := "authz"
 
-			configFile := createConfigFile(t, addr, policy, bundle, token)
+			configFile := createConfigFile(t, addr, policy, bundleName, token)
 
-			server := startServingBundles(t, addr, policy, bundle, token)
+			server := startServingBundles(t, addr, bundleName, token)
 			defer server.Close()
 
 			opa, err := NewOpa(ctx, configFile.Name())
@@ -100,7 +100,7 @@ func TestNewOpa(t *testing.T) {
 	}
 }
 
-func createConfigFile(t *testing.T, addr string, policy string, bundle string, token string) *os.File {
+func createConfigFile(t *testing.T, addr string, policy string, bundleName string, token string) *os.File {
 	exampleConfig := OpaConfig{
 		Services: []Service{
 			{
@@ -114,7 +114,7 @@ func createConfigFile(t *testing.T, addr string, policy string, bundle string, t
 			},
 		},
 		Bundles: map[string]Bundle{
-			bundle: {
+			bundleName: {
 				BundleSource: &BundleSource{
 					Service:  "mytestservice",
 					Resource: policy,
@@ -149,7 +149,7 @@ func createConfigFile(t *testing.T, addr string, policy string, bundle string, t
 	return file
 }
 
-func startServingBundles(t *testing.T, addr string, policy string, bundle string, token string) *http.Server {
+func startServingBundles(t *testing.T, addr string, bundleName string, token string) *http.Server {
 	infoLogger := logger.WriteAtLevel(zapcore.InfoLevel)
 	// gin.DefaultWriter = infoLogger
 	gin.DefaultWriter = ioutil.Discard
@@ -185,7 +185,7 @@ func startServingBundles(t *testing.T, addr string, policy string, bundle string
 				}).
 				Info("Path: %s", context.Request.URL.Path)
 		}).
-		GET(fmt.Sprintf("/bundles/%s", bundle), func(context *gin.Context) {
+		GET(fmt.Sprintf("/bundles/%s", bundleName), func(context *gin.Context) {
 			if context.GetHeader("authorization") == "" {
 				_ = context.AbortWithError(401, errors.New("no auth header"))
 				return
