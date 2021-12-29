@@ -22,11 +22,10 @@ func (z *ZapOpaLogger) Warn(format string, a ...interface{}) {
 }
 
 func (z *ZapOpaLogger) WithFields(m map[string]interface{}) logging.Logger {
-	var newContext []interface{}
+	newContext := z.context
 	for k, v := range m {
 		newContext = append(newContext, k, v)
 	}
-	newContext = append(z.context, newContext...)
 
 	build, err := z.config.Build(zap.AddCallerSkip(1))
 	if err != nil {
