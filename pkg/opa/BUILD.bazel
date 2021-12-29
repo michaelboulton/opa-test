@@ -2,13 +2,18 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "opa",
-    srcs = ["load.go"],
+    srcs = [
+        "load.go",
+        "serve.go",
+    ],
     importpath = "github.com/michaelboulton/opa-test/pkg/opa",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/logging",
+        "@com_github_gin_gonic_gin//:gin",
         "@com_github_open_policy_agent_opa//sdk",
         "@com_github_pkg_errors//:errors",
+        "@org_uber_go_zap//zapcore",
     ],
 )
 
@@ -18,13 +23,10 @@ go_test(
     data = ["//policies:allow_post"],
     embed = [":opa"],
     deps = [
-        "@com_github_gin_gonic_gin//:gin",
         "@com_github_open_policy_agent_opa//sdk",
-        "@com_github_pkg_errors//:errors",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
         "@in_gopkg_yaml_v3//:yaml_v3",
         "@io_bazel_rules_go//go/tools/bazel:go_default_library",
-        "@org_uber_go_zap//zapcore",
     ],
 )
