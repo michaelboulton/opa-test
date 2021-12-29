@@ -45,7 +45,7 @@ def _opa_bundle_impl(ctx):
 opa_bundle = rule(
     implementation = _opa_bundle_impl,
     attrs = {
-        "srcs": attr.label_list(allow_files = True),
+        "srcs": attr.label_list(allow_files = True, mandatory = True),
         "_opa": attr.label(default = "@opa", allow_single_file = True, executable = True, cfg = "exec"),
     },
 )
