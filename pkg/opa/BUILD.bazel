@@ -19,6 +19,7 @@ go_test(
     embed = [":opa"],
     deps = [
         "@com_github_gin_gonic_gin//:gin",
+        "@com_github_open_policy_agent_opa//sdk",
         "@com_github_pkg_errors//:errors",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",

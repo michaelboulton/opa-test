@@ -2,7 +2,9 @@ load("//bazel:opa.bzl", "opa_bundle", "opa_test")
 
 opa_bundle(
     name = "allow_post",
-    srcs = [":allow_post.rego"],
+    srcs = [
+        ":allow_post.rego",
+    ],
     visibility = ["//visibility:public"],
 )
 

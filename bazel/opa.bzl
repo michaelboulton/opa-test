@@ -53,12 +53,12 @@ opa_bundle = rule(
 def _opa_test_impl(ctx):
     ctx.actions.write(
         output = ctx.outputs.executable,
-        content = """{opa} test . {files} -b {bundle} -v""".format(
+        content = """
+        {opa} test . -v --explain full
+        """.format(
             opa = ctx.executable._opa.path,
             files = " ".join([i.path for i in ctx.files.srcs]),
-            bundle = " ".join([i.path for i in ctx.files.bundle]),
         ),
-        #        content = ["test", "."] + [i.short_path for i in ctx.files.test_files] + ["-b", ctx.files.bundle, "-v"],
     )
 
     runfiles = ctx.runfiles(files = ctx.files.srcs + ctx.files.bundle + ctx.files._opa)
