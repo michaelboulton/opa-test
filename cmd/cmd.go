@@ -12,6 +12,7 @@ var rootCmd = &cobra.Command{
 func main() {
 	r := &registrar{rootCmd: rootCmd}
 	cmd.AddServeCmd(r)
+	cmd.AddRunCmd(r)
 
 	err := rootCmd.Execute()
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,11 +14,16 @@ import (
 )
 
 // ServePolicy serves a policy file with the given name
-func ServePolicy(ctx context.Context, addr string, token string, bundleName string, bundleFile string) *http.Server {
+func ServePolicy(ctx context.Context, addr string, token string, bundleName string, bundleFile string) (*http.Server, error) {
 	infoLogger := logger.WriteAtLevel(zapcore.InfoLevel)
 	// gin.DefaultWriter = infoLogger
 	gin.DefaultWriter = ioutil.Discard
 	gin.DefaultErrorWriter = logger.WriteAtLevel(zapcore.ErrorLevel)
+
+	_, err := os.Stat(bundleFile)
+	if os.IsNotExist(err) {
+		return nil, errors.Wrap(err, "bundle file did not exist")
+	}
 
 	router := gin.Default()
 	router.
@@ -65,5 +71,5 @@ func ServePolicy(ctx context.Context, addr string, token string, bundleName stri
 		_ = server.ListenAndServe()
 	}()
 
-	return server
+	return server, nil
 }

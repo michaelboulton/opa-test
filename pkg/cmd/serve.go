@@ -40,7 +40,12 @@ func doServe(ctx context.Context, addr string, token string, bundleName string, 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	opa.ServePolicy(ctx, addr, token, bundleName, bundleFile)
+	_, err := opa.ServePolicy(ctx, addr, token, bundleName, bundleFile)
+	if err != nil {
+		return err
+	}
+
+	<-ctx.Done()
 
 	return nil
 }

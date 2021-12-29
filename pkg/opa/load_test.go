@@ -157,6 +157,9 @@ func startServingBundles(t *testing.T, addr string, bundleName string, token str
 		require.FailNow(t, "ohnoes")
 	}
 
-	return ServePolicy(context.Background(), addr, token, bundleName, bundleFile)
+	server,err:= ServePolicy(context.Background(), addr, token, bundleName, bundleFile)
+	require.NoError(t, err)
+
+	return server
 }
 
