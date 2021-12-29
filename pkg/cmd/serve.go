@@ -4,42 +4,43 @@ import (
 	"context"
 
 	"github.com/michaelboulton/opa-test/pkg/opa"
-	"github.com/open-policy-agent/opa/sdk"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
-var ServeCmd = &cobra.Command{
-	Use:     "run",
-	Example: "opa-test run my-config.yaml",
-	Short:   "Runs an OPA config",
-	Args:    cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return doServe(cmd.Context(), args[0])
-	},
+func AddServeCmd(r Registrar) {
+	var address string
+	var authToken string
+	var bundleFile string
+	var bundleName string
+
+	var ServeCmd = &cobra.Command{
+		Use:     "serve",
+		Example: "opa-test serve mybundlename bundle.tar.gz",
+		Short:   "serves an OPA bundle",
+		Args:    cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return doServe(cmd.Context(), address, authToken, bundleName, bundleFile)
+		},
+	}
+
+	flags := ServeCmd.Flags()
+	flags.StringVar(&address, "address", "127.0.0.1:8898", "address to serve on")
+	flags.StringVar(&authToken, "auth-token", "", "authorization")
+	flags.StringVar(&bundleFile, "bundle-file", "", "location of bundle file to server")
+	flags.StringVar(&bundleName, "bundle-name", "", "name of bundle")
+
+	_ = ServeCmd.MarkFlagRequired("auth-token")
+	_ = ServeCmd.MarkFlagRequired("bundle-file")
+	_ = ServeCmd.MarkFlagRequired("bundle-name")
+
+	r.Register(ServeCmd)
 }
 
-func doServe(ctx context.Context, filename string) error {
+func doServe(ctx context.Context, addr string, token string, bundleName string, bundleFile string) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	instance, err := opa.NewOpa(ctx, filename)
-	if err != nil {
-		return err
-	}
-	defer instance.Stop(ctx)
-
-	decision, err := instance.Decision(ctx, sdk.DecisionOptions{
-		Path: "/policies/allow_post",
-		Input: map[string]interface{}{
-			"a": "b",
-		},
-	})
-	if err != nil {
-		return errors.Wrap(err, "making decision")
-	}
-
-	logger.Infof("Decision: %#v", decision)
+	opa.ServePolicy(ctx, addr, token, bundleName, bundleFile)
 
 	return nil
 }

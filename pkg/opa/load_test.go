@@ -147,7 +147,7 @@ func createConfigFile(t *testing.T, addr string, policy string, bundleName strin
 }
 
 func startServingBundles(t *testing.T, addr string, bundleName string, token string) *http.Server {
-	runfile, err := bazel.Runfile("policies/bundle.tar.gz")
+	bundleFile, err := bazel.Runfile("policies/bundle.tar.gz")
 	if !assert.NoError(t, err) {
 		av, err := bazel.ListRunfiles()
 		require.NoError(t, err)
@@ -157,6 +157,6 @@ func startServingBundles(t *testing.T, addr string, bundleName string, token str
 		require.FailNow(t, "ohnoes")
 	}
 
-	return ServePolicy(bundleName, token, runfile, addr)
+	return ServePolicy(context.Background(), addr, token, bundleName, bundleFile)
 }
 

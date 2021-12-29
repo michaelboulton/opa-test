@@ -1,6 +1,7 @@
 package opa
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 )
 
 // ServePolicy serves a policy file with the given name
-func ServePolicy(bundleName string, token string, policyFile string, addr string) *http.Server {
+func ServePolicy(ctx context.Context, addr string, token string, bundleName string, bundleFile string) *http.Server {
 	infoLogger := logger.WriteAtLevel(zapcore.InfoLevel)
 	// gin.DefaultWriter = infoLogger
 	gin.DefaultWriter = ioutil.Discard
@@ -48,7 +49,7 @@ func ServePolicy(bundleName string, token string, policyFile string, addr string
 				return
 			}
 
-			context.File(policyFile)
+			context.File(bundleFile)
 			context.Status(200)
 		})
 
@@ -57,6 +58,10 @@ func ServePolicy(bundleName string, token string, policyFile string, addr string
 		Addr:    addr,
 	}
 	go func() {
+		go func() {
+			<-ctx.Done()
+			server.Close()
+		}()
 		_ = server.ListenAndServe()
 	}()
 

@@ -10,10 +10,19 @@ var rootCmd = &cobra.Command{
 }
 
 func main() {
-	rootCmd.AddCommand(cmd.RunCmd, cmd.ServeCmd)
+	r := &registrar{rootCmd: rootCmd}
+	cmd.AddServeCmd(r)
 
 	err := rootCmd.Execute()
 	if err != nil {
 		panic(err)
 	}
+}
+
+type registrar struct {
+	rootCmd *cobra.Command
+}
+
+func (r *registrar) Register(cmd *cobra.Command) {
+	r.rootCmd.AddCommand(cmd)
 }

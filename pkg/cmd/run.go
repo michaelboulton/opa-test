@@ -9,14 +9,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var RunCmd = &cobra.Command{
-	Use:     "run",
-	Example: "opa-test run my-config.yaml",
-	Short:   "Runs an OPA config",
-	Args:    cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return doRun(cmd.Context(), args[0])
-	},
+func AddRunCmd(r Registrar) {
+	var RunCmd = &cobra.Command{
+		Use:     "run",
+		Example: "opa-test run my-config.yaml",
+		Short:   "Runs an OPA config",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return doRun(cmd.Context(), args[0])
+		},
+	}
+
+	r.Register(RunCmd)
 }
 
 func doRun(ctx context.Context, filename string) error {

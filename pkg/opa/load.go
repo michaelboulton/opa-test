@@ -2,11 +2,13 @@ package opa
 
 import (
 	"context"
+	"io/ioutil"
 	"os"
 
 	"github.com/michaelboulton/opa-test/pkg/logging"
 	"github.com/open-policy-agent/opa/sdk"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 var logger = logging.Logger
@@ -29,6 +31,21 @@ func NewOpa(ctx context.Context, filename string) (*sdk.OPA, error) {
 	logger.Infof("loaded config from %s", filename)
 
 	return opa, nil
+}
+
+func LoadOpaConfig(filename string) (*OpaConfig, error) {
+	all, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, errors.Wrap(err, "loading config")
+	}
+
+	var opaConfig OpaConfig
+	err = yaml.Unmarshal(all, &opaConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "unmarshalling")
+	}
+
+	return &opaConfig, nil
 }
 
 // Service defines a service
