@@ -1,29 +1,29 @@
 ---
-#services:
-#  acmecorp:
-#    url: https://example.com/control-plane-api/v1
-#    response_header_timeout_seconds: 5
-#    credentials:
-#      bearer:
-#        token: "bGFza2RqZmxha3NkamZsa2Fqc2Rsa2ZqYWtsc2RqZmtramRmYWxkc2tm"
-#
+services:
+  localhost:
+    url: http://127.0.0.1:8898
+    response_header_timeout_seconds: 5
+    credentials:
+      bearer:
+        token: "testtoken"
+
 #labels:
 #  app: myapp
 #  region: west
 #  environment: production
-#
-#bundles:
-#  authz:
-#    service: acmecorp
-#    resource: bundles/http/example/authz.tar.gz
-#    persist: true
-#    polling:
-#      min_delay_seconds: 60
-#      max_delay_seconds: 120
-#    signing:
-#      keyid: global_key
-#      scope: write
-#
+
+bundles:
+  authz:
+    service: localhost
+    resource: bundles/abc
+    persist: false
+    polling:
+      min_delay_seconds: 60
+      max_delay_seconds: 120
+    #signing:
+    #  keyid: global_key
+    #  scope: write
+
 #decision_logs:
 #  service: acmecorp
 #  reporting:

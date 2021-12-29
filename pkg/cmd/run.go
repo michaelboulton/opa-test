@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/michaelboulton/opa-test/pkg/opa"
 	"github.com/open-policy-agent/opa/sdk"
@@ -34,9 +35,11 @@ func doRun(ctx context.Context, filename string) error {
 	defer instance.Stop(ctx)
 
 	decision, err := instance.Decision(ctx, sdk.DecisionOptions{
-		Path: "/policies/allow_post",
+		Path: "authz/allow",
 		Input: map[string]interface{}{
-			"a": "b",
+			"a":      "b",
+			"path":   "/users",
+			"method": "POST",
 		},
 	})
 	if err != nil {
@@ -44,6 +47,14 @@ func doRun(ctx context.Context, filename string) error {
 	}
 
 	logger.Infof("Decision: %#v", decision)
+
+	allowed, ok := decision.Result.(bool)
+	if !ok {
+		return errors.Errorf("Expected boolean decision result but got %#v", reflect.TypeOf(decision.Result))
+	}
+	if !allowed {
+		return errors.New("Was not allowed")
+	}
 
 	return nil
 }
